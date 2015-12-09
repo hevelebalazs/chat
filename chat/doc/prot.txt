@@ -1,0 +1,51 @@
+protocol:
+	action_id action_type data 
+
+message_id - 4 byte - identifier (can be determined by client)
+
+action_type - 1 byte
+
+data - following data, depending on the value of action_type:
+
+ACTION_LOGIN:
+	data = name_length name
+	name_length - 4 bytes - length of the name
+	name - name_length bytes - user's name
+	
+ACTION_RESPONSE:
+	data = response_id
+	response_id - 1 byte, values:
+		0 - authentification succeeded
+		1 - error: error receiving
+		2 - error: server is full
+		3 - error: name is already in use
+		4 - error: name is not allowed
+		5 - error: no such user/room
+		
+ACTION_MESSAGE: (client->server)
+	data = message_id receiver_name_length receiver_name message_length message
+	receiver_name_length - 4 byte - length of the receiver's name
+	receiver_name - can be a username or a room name (starting with #)
+	
+ACTION_MESSAGE: (server->client)
+	data = message_id sender_name_length sender_name room_length room message_length message
+	message_id - 4 byte - unique identifier
+	sender_name_length - 4 byte
+	sender_name - sender_name_length byte - name of sending user
+	room_length - 4 byte - 0 for private message
+	room - room_length byte - name of room
+	message_length - 4 byte
+	message - message_length byte - message
+	
+ACTION_JOIN:
+	data = room_name_length room_name
+	room_name_length - 4 byte
+	room_name - room_name_length byte
+	
+ACTION_LEAVE:
+	data = room_name_length room_name
+	room_name_lenght - 4 byte
+	room_name - room_name_length byte
+
+ACTION EXIT:
+	data is empty
