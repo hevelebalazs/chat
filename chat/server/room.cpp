@@ -44,5 +44,33 @@ void roommsg(char*msg){
 int roomadd(){
     if(inroom())return INROOM;
     if(selr->nc==ROOMSIZE) return ROOMFULL;
-    selr->clients[selr->nc++]=selc; return JOINOK;
+    selr->clients[selr->nc++]=selc;
+    int i, n=selr->nc;
+    client c=selc;
+    for(i=0;i<n;++i){
+        selc=selr->clients[i];
+        sendi(MSGJOIN); sends(selr->name); sends(c->name);
+    }
+    selc=c;
+    return JOINOK;
+}
+static void roomdel(){
+    selr->prev->next=selr->next;
+    selr->next->prev=selr->prev;
+    delete[]selr->name; delete selr;
+}
+void roomrm(){
+    int i,n=selr->nc; client*C=selr->clients;
+    for(i=0;i<n;++i){
+        if(selc==selr->clients[i])break;
+    }
+    n=--selr->nc;
+    if(n==0)roomdel();
+    C[i]=C[n];
+    client c=selc;
+    for(i=0;i<n;++i){
+        selc=C[i];
+        sendi(MSGLEAVE); sends(selr->name); sends(c->name);
+    }
+    selc=c;
 }

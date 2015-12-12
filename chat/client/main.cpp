@@ -37,15 +37,18 @@ static DWORD WINAPI read(void*param){
             char cmd[MSGMAX+1]; sscanf(out,"/%s",cmd);
             if(!strcmp(cmd,"join")){
                 char room[ROOMMAX+1]; sscanf(out,"/%s %s",cmd,room);
-                printf("Trying to join room %s...\n",room);
                 sendi(MSGJOIN); sends(room);
             }
+            else if(!strcmp(cmd,"leave")){
+                char room[ROOMMAX+1]; sscanf(out,"/%s %s",cmd,room);
+                sendi(MSGLEAVE); sends(room);
+            }
             else if(!strcmp(cmd,"pm")){
-                char name[NAMEMAX+1],msg[MSGMAX+1]; sscanf(out,"%s %s %[^\0]",cmd,name,msg);
+                char name[NAMEMAX+1],msg[MSGMAX+1]; sscanf(out,"/%s %s %[^\0]",cmd,name,msg);
                 sendi(MSGTO); sends(name); sends(msg);
             }
             else if(!strcmp(cmd,"room")){
-                char room[ROOMMAX+1],msg[MSGMAX+1]; sscanf(out,"%s %s %[^\0]",cmd,room,msg);
+                char room[ROOMMAX+1],msg[MSGMAX+1]; sscanf(out,"/%s %s %[^\0]",cmd,room,msg);
                 sendi(MSGROOM); sends(room); sends(msg);
             }
         }
@@ -78,6 +81,7 @@ static void error(int errid){
             break;
         }
         default:{
+            printf("Error message: %i\n",errid);
             throw "invalid error message";
         }
     }
@@ -98,6 +102,18 @@ static void write(){
                 char*from=recvs(NAMEMIN,NAMEMAX);
                 char* msg=recvs(MSGMIN,MSGMAX);
                 printf("[%s] %s: %s\n",room,from,msg);
+                break;
+            }
+            case MSGJOIN:{
+                char*room=recvs(ROOMMIN,ROOMMAX);
+                char*user=recvs(NAMEMIN,NAMEMAX);
+                printf("[%s] %s has joined.\n",room,user);
+                break;
+            }
+            case MSGLEAVE:{
+                char*room=recvs(ROOMMIN,ROOMMAX);
+                char*user=recvs(NAMEMIN,NAMEMAX);
+                printf("[%s] %s has left.\n",room,user);
                 break;
             }
             case MSGERROR:{

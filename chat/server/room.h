@@ -19,6 +19,6 @@ void roomuninit();
 char inroom();
 void roomsel(char*);
 int  roomadd();
-int  roomrm();
+void roomrm();
 void roommsg(char*);
 #endif

@@ -86,6 +86,14 @@ static void threadRun(client c){
                 roomsel(room); senderr(roomadd());
                 break;
             }
+            case MSGLEAVE:{
+                if(!c->loggedin) throw "not logged in";
+                char*room=recvs(ROOMMIN,ROOMMAX);
+                roomsel(room);
+                if(!inroom()) senderr(NOTINROOM);
+                roomrm();
+                break;
+            }
             default:{
                 printf("Msg id: %i\n",msgid);
                 throw "unknown msg id";
