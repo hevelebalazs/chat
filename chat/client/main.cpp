@@ -32,9 +32,36 @@ static void login(){
 static DWORD WINAPI read(void*param){
     while(1){
         scanf("\n%[^\n]",out);
-        sendi(MSGALL); sends(out);
+        if(out[0]=='/'){
+            //command
+            char cmd[MSGMAX+1]; sscanf(out,"/%s",cmd);
+            if(!strcmp(cmd,"join")){
+                char room[ROOMMAX+1]; sscanf(out,"/%s %s",cmd,room);
+                printf("Trying to join room %s...\n",room);
+                sendi(MSGJOIN); sends(room);
+            }
+        }
+        else{
+            sendi(MSGALL); sends(out);
+        }
     }
     return 0;
+}
+static void error(int errid){
+    switch(errid){
+        case JOINOK:{
+            printf("Joined room\n");
+            break;
+        }
+        case ROOMFULL:{
+            printf("Room is full.\n");
+            break;
+        }
+        case INROOM:{
+            printf("You are already in that room!\n");
+            break;
+        }
+    }
 }
 static void write(){
     while(1){
@@ -45,6 +72,10 @@ static void write(){
                 char* msg=recvs(MSGMIN, MSGMAX);
                 printf("%s: %s\n",from,msg);
                 delete[]from; delete[]msg;
+                break;
+            }
+            case MSGERROR:{
+                error(recvi());
                 break;
             }
             default: throw "unexpected message id";

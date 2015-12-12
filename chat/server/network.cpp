@@ -17,7 +17,6 @@ int recvi(){
 }
 char* recvs(int min,int max){
     int i=recvi();
-    printf("length = %i\n",i);
     if(i<min)throw "data too short";
     if(i>max)throw "data too long";
     char*s=new char[max+1];

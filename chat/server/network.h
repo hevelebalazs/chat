@@ -3,6 +3,7 @@
 
 #include "../client/constants.h"
 #include "thread.h"
+#include "room.h"
 
 extern __thread client selc;
 

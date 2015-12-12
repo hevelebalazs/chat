@@ -1,6 +1,7 @@
 #include <winsock2.h>
 #include <cstdio>
 #include "thread.h"
+#include "room.h"
 static int res;
 static SOCKET listenSocket;
 static sockaddr_in address;
@@ -24,10 +25,13 @@ void init(){
     //listen
     res=listen(listenSocket,2);
     if(res==SOCKET_ERROR)throw "Listen error!";
+    //room
+    roominit();
 }
 void uninit(){
     if(listenSocket)closesocket(listenSocket);
     WSACleanup();
+    roomuninit();
 }
 void run(){
     SOCKET* clientSocket=new SOCKET;

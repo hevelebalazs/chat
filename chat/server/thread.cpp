@@ -19,7 +19,6 @@ static char nameinuse(char*name){
 static void threadRun(client c){
     while(1){
         int msgid=recvi();
-        printf("msgid=%i\n",msgid);
         switch(msgid){
             case MSGNAME:{
                 if(c->loggedin) throw "already logged in";
@@ -43,6 +42,12 @@ static void threadRun(client c){
                 }
                 selc=c;
                 delete[]msg;
+                break;
+            }
+            case MSGJOIN:{
+                if(!c->loggedin) throw "not logged in";
+                char*room=recvs(ROOMMIN,ROOMMAX);
+                roomsel(room); senderr(roomadd());
                 break;
             }
             default:{
