@@ -2,12 +2,14 @@
 #define THREAD_H
 #include <windows.h>
 #include <cstdio>
-#define BUFFSIZE 1024
+#include "../client/constants.h"
 struct Client{
     SOCKET sock;
     int id;
     Client*prev,*next;
-    char buff[BUFFSIZE];
+    char name[NAMEMAX+1];
+    char msg[MSGMAX+1];
+    char loggedin;
 };
 typedef Client* client;
 void threadInit();

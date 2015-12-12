@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1449909923 source:d:\code\chat\chat\client\main.cpp
+	<winsock2.h>
+	<cstdio>
+	"constants.h"
+
+1449909577 d:\code\chat\chat\client\constants.h
+
