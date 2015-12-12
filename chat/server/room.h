@@ -1,6 +1,7 @@
 #ifndef ROOMH
 #define ROOMH
 #include "thread.h"
+#include "network.h"
 
 typedef struct ROOM{
     struct ROOM* prev,* next;
@@ -15,8 +16,9 @@ extern __thread Room* selr; //selected room
 void roominit();
 void roomuninit();
 
+char inroom();
 void roomsel(char*);
 int  roomadd();
 int  roomrm();
-
+void roommsg(char*);
 #endif

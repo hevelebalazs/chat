@@ -1,4 +1,5 @@
 #include "thread.h"
+#include "room.h"
 #include "network.h"
 static client first,last;
 static int lastid;
@@ -7,6 +8,14 @@ void threadInit(){
     last=new Client;
     first->next=last;
     last->prev=first;
+}
+static char selectuser(char*name){
+    client c;
+    for(c=first->next;c!=last;c=c->next){
+        if(!c->loggedin)continue;
+        if(!strcmp(c->name,name)){selc=c;return 1;}
+    }
+    return 0;
 }
 static char nameinuse(char*name){
     client c;
@@ -44,6 +53,33 @@ static void threadRun(client c){
                 delete[]msg;
                 break;
             }
+            case MSGTO:{
+                if(!c->loggedin) throw "not logged in";
+                char*name=recvs(NAMEMIN,NAMEMAX);
+                char* msg=recvs(MSGMIN,MSGMAX);
+                if(!selectuser(name)){
+                    senderr(NOSUCHUSER);
+                    delete[]name; delete[]msg;
+                    break;
+                }
+                sendi(MSGFROM); sends(c->name); sends(msg);
+                delete[]name; delete[]msg;
+                selc=c;
+                break;
+            }
+            case MSGROOM:{
+                if(!c->loggedin) throw "not logged in";
+                char*room=recvs(ROOMMIN,ROOMMAX);
+                char* msg=recvs(MSGMIN,MSGMAX);
+                roomsel(room);
+                if(!inroom()){
+                    delete[]room; delete[]msg;
+                    senderr(NOTINROOM); break;
+                }
+                roommsg(msg);
+                delete[]room;delete[]msg;
+                break;
+            }
             case MSGJOIN:{
                 if(!c->loggedin) throw "not logged in";
                 char*room=recvs(ROOMMIN,ROOMMAX);
@@ -51,6 +87,7 @@ static void threadRun(client c){
                 break;
             }
             default:{
+                printf("Msg id: %i\n",msgid);
                 throw "unknown msg id";
                 break;
             }

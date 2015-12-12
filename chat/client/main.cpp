@@ -40,6 +40,14 @@ static DWORD WINAPI read(void*param){
                 printf("Trying to join room %s...\n",room);
                 sendi(MSGJOIN); sends(room);
             }
+            else if(!strcmp(cmd,"pm")){
+                char name[NAMEMAX+1],msg[MSGMAX+1]; sscanf(out,"%s %s %[^\0]",cmd,name,msg);
+                sendi(MSGTO); sends(name); sends(msg);
+            }
+            else if(!strcmp(cmd,"room")){
+                char room[ROOMMAX+1],msg[MSGMAX+1]; sscanf(out,"%s %s %[^\0]",cmd,room,msg);
+                sendi(MSGROOM); sends(room); sends(msg);
+            }
         }
         else{
             sendi(MSGALL); sends(out);
@@ -61,6 +69,17 @@ static void error(int errid){
             printf("You are already in that room!\n");
             break;
         }
+        case NOSUCHUSER:{
+            printf("No such user found!\n");
+            break;
+        }
+        case NOTINROOM:{
+            printf("You are not in that room! Use /join [roomname] to join.\n");
+            break;
+        }
+        default:{
+            throw "invalid error message";
+        }
     }
 }
 static void write(){
@@ -72,6 +91,13 @@ static void write(){
                 char* msg=recvs(MSGMIN, MSGMAX);
                 printf("%s: %s\n",from,msg);
                 delete[]from; delete[]msg;
+                break;
+            }
+            case MSGROOM:{
+                char*room=recvs(ROOMMIN,ROOMMAX);
+                char*from=recvs(NAMEMIN,NAMEMAX);
+                char* msg=recvs(MSGMIN,MSGMAX);
+                printf("[%s] %s: %s\n",room,from,msg);
                 break;
             }
             case MSGERROR:{

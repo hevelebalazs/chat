@@ -9,13 +9,15 @@ void roominit(){
     first=new Room; last=new Room;
     first->next=last; last->prev=first;
 }
-
+char inroom(){
+    int i;
+    for(i=0;i<selr->nc;++i) if(selc==selr->clients[i]) return 1;
+    return 0;
+}
 void roomuninit(){
     delete first; delete last;
 }
-
 void roomsel(char*name){
-    printf("selecting room %s\n",name);
     room r;
     for(r=first->next;r!=last;r=r->next){
         if(!strcmp(r->name,name)){
@@ -23,7 +25,6 @@ void roomsel(char*name){
             return;
         }
     }
-    printf("creating new room %s\n",name);
     r=new Room;
     r->name=new char[strlen(name)+1]; strcpy(r->name,name);
     r->prev=last->prev; last->prev->next=r;
@@ -31,10 +32,17 @@ void roomsel(char*name){
     r->nc=0;
     selr=r;
 }
-
+void roommsg(char*msg){
+    client c=selc;
+    int i, n=selr->nc;
+    for(i=0;i<n;++i){
+        selc=selr->clients[i];
+        sendi(MSGROOM); sends(selr->name); sends(c->name); sends(msg);
+    }
+    selc=c;
+}
 int roomadd(){
-    int i;
-    for(i=0;i<selr->nc;++i) if(selc==selr->clients[i]) return INROOM;
+    if(inroom())return INROOM;
     if(selr->nc==ROOMSIZE) return ROOMFULL;
     selr->clients[selr->nc++]=selc; return JOINOK;
 }
