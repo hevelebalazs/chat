@@ -30,12 +30,12 @@ void uninit(){
     WSACleanup();
 }
 void run(){
-    SOCKET clientSocket;
-    clientSocket=accept(listenSocket,0,0);
-    if(clientSocket==INVALID_SOCKET)throw "accept error!";
+    SOCKET* clientSocket=new SOCKET;
+    *clientSocket=accept(listenSocket,0,0);
+    if(*clientSocket==INVALID_SOCKET)throw "accept error!";
     //client connected
     DWORD dw;
-    HANDLE handle=CreateThread(0,4096,threadNew,&clientSocket,0,&dw);
+    HANDLE handle=CreateThread(0,4096,threadNew,clientSocket,0,&dw);
     if(handle==INVALID_HANDLE_VALUE)throw "handle error!";
 }
 int main(){

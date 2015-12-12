@@ -37,6 +37,7 @@ static void threadUninit(client c){
 DWORD WINAPI threadNew(void*socketData){
     client c=new Client;
     c->sock=*(SOCKET*)socketData;
+    delete (SOCKET*)socketData;
     last->prev->next=c;
     c->prev=last->prev;
     c->next=last;
