@@ -35,6 +35,16 @@ static void threadRun(client c){
                 senderr(NAMEOK);
                 break;
             }
+            case MSGALL:{
+                if(!c->loggedin) throw "not logged in";
+                char*msg=recvs(MSGMIN,MSGMAX);
+                for(selc=first->next;selc!=last;selc=selc->next){
+                    sendi(MSGFROM); sends(c->name); sends(msg);
+                }
+                selc=c;
+                delete[]msg;
+                break;
+            }
             default:{
                 throw "unknown msg id";
                 break;

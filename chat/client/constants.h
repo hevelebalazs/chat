@@ -10,7 +10,7 @@
 #define MSGMAX 1024
 
 //message types
-enum{MSGNAME,MSGERROR};
+enum{MSGNAME,MSGERROR,MSGALL,MSGFROM};
 //error types
 enum{NAMEOK,NAMEINUSE};
 

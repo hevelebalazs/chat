@@ -32,16 +32,23 @@ static void login(){
 static DWORD WINAPI read(void*param){
     while(1){
         scanf("\n%[^\n]",out);
-        /*int len=1+strlen(out);
-        res=send(sock,out,len,0);
-        if(res==SOCKET_ERROR)throw "send error!";*/
+        sendi(MSGALL); sends(out);
     }
     return 0;
 }
 static void write(){
     while(1){
         int msgid=recvi();
-        printf("Received msg with id %i\n",msgid);
+        switch(msgid){
+            case MSGFROM:{
+                char*from=recvs(NAMEMIN,NAMEMAX);
+                char* msg=recvs(MSGMIN, MSGMAX);
+                printf("%s: %s\n",from,msg);
+                delete[]from; delete[]msg;
+                break;
+            }
+            default: throw "unexpected message id";
+        }
     }
 }
 static void run(){
