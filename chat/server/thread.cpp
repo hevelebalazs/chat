@@ -3,11 +3,13 @@
 #include "network.h"
 static client first,last;
 static int lastid;
+static CRITICAL_SECTION critsec;
 void threadInit(){
     first=new Client;
     last=new Client;
     first->next=last;
     last->prev=first;
+    InitializeCriticalSection(&critsec);
 }
 static char selectuser(char*name){
     client c;
@@ -28,6 +30,7 @@ static char nameinuse(char*name){
 static void threadRun(client c){
     while(1){
         int msgid=recvi();
+        EnterCriticalSection(&critsec);
         switch(msgid){
             case MSGNAME:{
                 if(c->loggedin) throw "already logged in";
@@ -100,6 +103,7 @@ static void threadRun(client c){
                 break;
             }
         }
+        LeaveCriticalSection(&critsec);
     }
 }
 static void threadUninit(client c){
@@ -125,6 +129,8 @@ DWORD WINAPI threadNew(void*socketData){
     }
     catch(const char*msg){
         printf("Error at client %i : %s\n",c->id,msg);
+        LeaveCriticalSection(&critsec);
+        printf("Left critical section not normally\n");
     }
     threadUninit(c);
     return 0;
