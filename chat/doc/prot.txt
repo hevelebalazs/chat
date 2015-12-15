@@ -1,9 +1,22 @@
-protocol:
-	action_type data 
-
-action_type - 4 bytes
-
-data - following data, depending on the value of action_type:
+Network protocol
+-----------------
+- uses TCP
+- data is cut into "frames"
+- if data is not accepted, client will be disconnected
+- possible reasons for disconnecting a client include:
+	- unknown actiontype (see actiontype specification below)
+	- not accepted integer range (see each specification below)
+	- attempting to send message or join/leave room without authorization
+------
+Frames
+------
+Specification:
+ 	<actiontype> <data>
+Parameters: 
+	actiontype - 4 bytes (see list below for specification)
+	data       - depends on the value of action_type
+	
+Possible "actiontype" values:
 -------------------------------------------
 0 - name for login attempt (client->server)
 -------------------------------------------
