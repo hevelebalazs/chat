@@ -11,7 +11,7 @@ void roominit(){
 }
 char inroom(){
     int i;
-    for(i=0;i<selr->nc;++i) if(selc==selr->clients[i]) return 1;
+    for(i=0;i<selr->nc;++i) if(selc==i[selr->clients]) return 1;
     return 0;
 }
 void roomuninit(){
@@ -36,7 +36,7 @@ void roommsg(char*msg){
     client c=selc;
     int i, n=selr->nc;
     for(i=0;i<n;++i){
-        selc=selr->clients[i];
+        selc=i[selr->clients];
         sendi(MSGROOM); sends(selr->name); sends(c->name); sends(msg);
     }
     selc=c;
@@ -48,7 +48,7 @@ int roomadd(){
     int i, n=selr->nc;
     client c=selc;
     for(i=0;i<n;++i){
-        selc=selr->clients[i];
+        selc=i[selr->clients];
         sendi(MSGJOIN); sends(selr->name); sends(c->name);
     }
     selc=c;
@@ -62,14 +62,14 @@ static void roomdel(){
 void roomrm(){
     int i,n=selr->nc; client*C=selr->clients;
     for(i=0;i<n;++i){
-        if(selc==selr->clients[i])break;
+        if(selc==i[selr->clients])break;
     }
     n=--selr->nc;
     if(n==0)roomdel();
-    C[i]=C[n];
+    i[C]=n[C];
     client c=selc;
     for(i=0;i<n;++i){
-        selc=C[i];
+        selc=i[C];
         sendi(MSGLEAVE); sends(selr->name); sends(c->name);
     }
     selc=c;

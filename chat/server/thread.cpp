@@ -130,9 +130,7 @@ DWORD WINAPI threadNew(void*socketData){
     catch(const char*msg){
         printf("Error at client %i : %s\n",c->id,msg);
         LeaveCriticalSection(&critsec);
-        printf("Left critical section not normally\n");
     }
     threadUninit(c);
     return 0;
 }
-
