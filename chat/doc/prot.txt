@@ -106,3 +106,27 @@ parameters:
 	name          - string - "namelength" bytes (name of the user)
 	messagelength - integer (accepted range: 1-1024) - 4 bytes
 	message       - string - "messagelength" bytes
+-----------------------------------------
+8 - sending file to user (client->server)
+-----------------------------------------
+specification:
+	8 <namelength> <name> <filenamelength> <filename> <filesizes> <filedata>
+parameters:
+	namelength     - integer (accepted range: 2-10) - 4 bytes
+	name           - string - "namelength" bytes (name of user)
+	filenamelength - integer (accepted range: 1-20) - 4 bytes
+	filename       - string - "filenamelength" bytes (name of file)
+	filesize       - integer (accepted range: 1-4096) (file size in bytes)
+	filedata       - binary data - "filesize" bytes
+-----------------------------------------
+8 - sending file to user (server->client)
+-----------------------------------------
+specification:
+	8 <namelength> <name> <filenamelength> <filename> <filesizes> <filedata>
+parameters:
+	namelength     - integer (accepted range: 2-10) - 4 bytes
+	name           - string - "namelength" bytes (name of sender)
+	filenamelength - integer (accepted range: 1-20) - 4 bytes
+	filename       - string - "filenamelength" bytes (name of file)
+	filesize       - integer (accepted range: 1-4096) (file size in bytes)
+	filedata       - binary data - "filesize" bytes

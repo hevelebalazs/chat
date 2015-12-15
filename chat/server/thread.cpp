@@ -97,6 +97,36 @@ static void threadRun(client c){
                 roomrm();
                 break;
             }
+            case MSGFILE:{
+                printf("%s wants to send file:\n",c->name);
+                if(!c->loggedin) throw "not logged in";
+                char*name=recvs(NAMEMIN,NAMEMAX);
+                printf("  to %s\n",name);
+                if(!selectuser(name)) throw "User not found for file sending";
+                client to=selc; selc=c;
+                char*fname=recvs(FNAMEMIN,FNAMEMAX);
+                printf("  file name %s\n",fname);
+                int   flen=recvi();
+                printf("  file size %i\n",flen);
+                printf("  data:\n");
+                if(flen<FILEMIN) throw "File too short!";
+                if(flen>FILEMAX) throw "File too long!";
+                selc=to; sendi(MSGFILE); sends(c->name); sends(fname); sendi(flen);
+                char buff[FILEBUFF];
+                int sent=0;
+                while(sent<flen){
+                    selc=c;
+                    int read=FILEBUFF;
+                    if(sent+read>flen) read=flen-sent;
+                    recvn(buff,read);
+                    selc=to; sendn(buff,read);
+                    sent+=read;
+                }
+                selc=c;
+                printf("Finished reading\n");
+                delete[]name; delete[]fname;
+                break;
+            }
             default:{
                 printf("Msg id: %i\n",msgid);
                 throw "unknown msg id";

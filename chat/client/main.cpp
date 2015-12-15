@@ -51,6 +51,32 @@ static DWORD WINAPI read(void*param){
                 char room[ROOMMAX+1],msg[MSGMAX+1]; sscanf(out,"/%s %s %[^\0]",cmd,room,msg);
                 sendi(MSGROOM); sends(room); sends(msg);
             }
+            else if(!strcmp(cmd,"file")){
+                char name[NAMEMAX+1],fname[FNAMEMAX+1]; sscanf(out,"/%s %s %s",cmd,name,fname);
+                printf("Sending file %s to %s\n",fname,name);
+                FILE*f=fopen(fname,"rb");
+                if(!f){
+                    printf("File not found!\n"); continue;
+                }
+                fseek(f,0,SEEK_END); int fsize=ftell(f);
+                fseek(f,0,SEEK_SET);
+                if(fsize>FILEMAX){
+                    printf("File too big! Maximum file size: %i bytes\n",FILEMAX);
+                    fclose(f); continue;
+                }
+                sendi(MSGFILE); sends(name); sends(fname); sendi(fsize);
+                char buff[FILEBUFF];
+                int sent=0;
+                while(sent<fsize){
+                    int read=FILEBUFF;
+                    if(sent+read>fsize) read=fsize-sent;
+                    int res=fread(buff,1,read,f);
+                    if(res!=read) throw "File send error";
+                    sendn(buff,read);
+                    sent+=read;
+                }
+                fclose(f);
+            }
         }
         else{
             sendi(MSGALL); sends(out);
@@ -115,6 +141,28 @@ static void write(){
                 char*user=recvs(NAMEMIN,NAMEMAX);
                 printf("[%s] %s has left.\n",room,user);
                 break;
+            }
+            case MSGFILE:{
+                printf("receiving file:\n");
+                char* name=recvs(NAMEMIN,NAMEMAX);
+                printf("  from: %s\n",name);
+                char*fname=recvs(FNAMEMIN,FNAMEMAX);
+                printf("  file name: %s\n",fname);
+                int flen=recvi();
+                printf("  file size: %i\n",flen);
+                printf("  Data:\n");
+                FILE*f=fopen("tmp.txt","wb");
+                char buff[FILEBUFF]; int saved=0;
+                while(saved<flen){
+                    int read=FILEBUFF;
+                    if(saved+read>flen) read=flen-saved;
+                    recvn(buff,read);
+                    int res=fwrite(buff,1,read,f);
+                    if(res!=read) throw "File write error";
+                    saved+=read;
+                }
+                printf("Received file from %s\n",name);
+                delete[]name; delete[]fname; fclose(f);
             }
             case MSGERROR:{
                 error(recvi());
